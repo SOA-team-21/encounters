@@ -13,7 +13,7 @@ type HiddenEncounterRepo struct {
 
 func (repo *HiddenEncounterRepo) Get (id string) (model.HiddenEncounter, error) {
 	hiddenEncounter := model.HiddenEncounter{}
-	dbResult := repo.DatabaseConnection.First(&hiddenEncounter, "id = ?", id)
+	dbResult := repo.DatabaseConnection.Preload("Participants").First(&hiddenEncounter, "id = ?", id)
 	if dbResult.Error != nil {
 		return hiddenEncounter, dbResult.Error
 	}
@@ -30,7 +30,7 @@ func (repo *HiddenEncounterRepo) UpdateHiddenEncounter(encounter *model.HiddenEn
 
 func (repo *HiddenEncounterRepo) GetAll() ([]model.HiddenEncounter, error) {
 	encounters := []model.HiddenEncounter{}
-	dbResult := repo.DatabaseConnection.Find(&encounters)
+	dbResult := repo.DatabaseConnection.Preload("Participants").Find(&encounters)
 	if dbResult != nil {
 		return encounters, dbResult.Error
 	}
