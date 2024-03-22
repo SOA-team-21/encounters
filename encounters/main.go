@@ -22,14 +22,14 @@ func initDB() *gorm.DB {
 		print(err)
 		return nil
 	}
-	err = database.AutoMigrate(&model.Location{}, &model.Encounter{}, &model.HiddenEncounter{}, &model.Completer{}, &model.Participant{})
+	err = database.AutoMigrate(&model.Location{}, &model.Encounter{}, &model.HiddenEncounter{}, &model.SocialEncounter{}, &model.Completer{}, &model.Participant{})
 	if err != nil {
 		log.Fatalf("Error migrating models: %v", err)
 	}
 	return database
 }
 
-func startServer(handler *handler.HiddenEncounterHandler) {
+func startServer(handler *handler.HiddenEncounterHandler, socialEncounterHandler *handler.SocialEncounterHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/hiddenEncounter/create", handler.Create).Methods("POST")
@@ -37,6 +37,9 @@ func startServer(handler *handler.HiddenEncounterHandler) {
 	router.HandleFunc("/hiddenEncounter/activate/{id}", handler.Activate).Methods("PUT")
 	router.HandleFunc("/hiddenEncounter/solve/{id}", handler.Solve).Methods("PUT")
 	router.HandleFunc("/hiddenEncounter", handler.GetAll).Methods("GET")
+
+	//SocialEncounter
+	router.HandleFunc("/socialEncounter/create", socialEncounterHandler.Create).Methods("POST")
 
 	println("Server starting")
 	log.Fatal((http.ListenAndServe(":8081", router)))
@@ -53,5 +56,9 @@ func main() {
 	hiddenEncounterService := &service.HiddenEncounterService{Repo: hiddenEncounterRepo}
 	hiddenEncounterHandler := &handler.HiddenEncounterHandler{HiddenEncounterService: hiddenEncounterService}
 
-	startServer(hiddenEncounterHandler)
+	socialEncounterRepo := &repo.SocialEncounterRepo{DatabaseConnection: database}
+	socialEncounterService := &service.SocialEncounterService{Repo: socialEncounterRepo}
+	socialEncounterHandler := &handler.SocialEncounterHandler{SocialEncounterService: socialEncounterService}
+
+	startServer(hiddenEncounterHandler, socialEncounterHandler)
 }
