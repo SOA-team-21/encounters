@@ -33,6 +33,10 @@ func startServer(handler *handler.HiddenEncounterHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/hiddenEncounter/create", handler.Create).Methods("POST")
+	router.HandleFunc("/hiddenEncounter/getHiddenEncounter/{id}", handler.Get).Methods("GET")
+	router.HandleFunc("/hiddenEncounter/activate/{id}", handler.Activate).Methods("PUT")
+	router.HandleFunc("/hiddenEncounter/solve/{id}", handler.Solve).Methods("PUT")
+	router.HandleFunc("/hiddenEncounter", handler.GetAll).Methods("GET")
 
 	println("Server starting")
 	log.Fatal((http.ListenAndServe(":8081", router)))

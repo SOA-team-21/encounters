@@ -20,11 +20,53 @@ func (repo *HiddenEncounterRepo) Get (id string) (model.HiddenEncounter, error) 
 	return hiddenEncounter, nil
 }
 
-func (repo *HiddenEncounterRepo) CreateHiddenEncounter (hiddenEncounter *model.HiddenEncounter) error {
-	dbResult := repo.DatabaseConnection.Create(hiddenEncounter)
+func (repo *HiddenEncounterRepo) UpdateHiddenEncounter(encounter *model.HiddenEncounter) error {
+	dbResult := repo.DatabaseConnection.Save(encounter)
 	if dbResult.Error != nil {
 		return dbResult.Error
 	}
-	println("Rows affected: ", dbResult.RowsAffected)
 	return nil
+}
+
+func (repo *HiddenEncounterRepo) GetAll() ([]model.HiddenEncounter, error) {
+	encounters := []model.HiddenEncounter{}
+	dbResult := repo.DatabaseConnection.Find(&encounters)
+	if dbResult != nil {
+		return encounters, dbResult.Error
+	}
+	return encounters, nil
+}
+
+
+func (repo *HiddenEncounterRepo) CreateHiddenEncounter(hiddenEncounter *model.HiddenEncounter) error {
+    tx := repo.DatabaseConnection.Begin()
+
+    encounter := model.Encounter{
+        Name:        hiddenEncounter.Name,
+        Description: hiddenEncounter.Description,
+        Location: hiddenEncounter.Location,
+		Experience: hiddenEncounter.Experience,
+		Status: hiddenEncounter.Status,
+		Type:  hiddenEncounter.Type,
+		Radius: hiddenEncounter.Radius,
+		Participants: hiddenEncounter.Participants,
+		Completers: hiddenEncounter.Completers,
+    }
+    if err := tx.Create(&encounter).Error; err != nil {
+        tx.Rollback()
+        return err
+    }
+
+    hiddenEncounter.Id = encounter.Id
+    if err := tx.Create(hiddenEncounter).Error; err != nil {
+        tx.Rollback()
+        return err
+    }
+
+    if err := tx.Commit().Error; err != nil {
+        tx.Rollback()
+        return err
+    }
+
+    return nil
 }

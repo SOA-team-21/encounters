@@ -2,9 +2,7 @@ package model
 
 import (
 	"errors"
-	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +16,6 @@ func (participant *Participant) BeforeCreate(scope *gorm.DB) error {
 	if err := participant.Validate(); err != nil {
 		return err
 	}
-	participant.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
 	return nil
 }
 
