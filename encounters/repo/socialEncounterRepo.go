@@ -52,12 +52,3 @@ func (repo *SocialEncounterRepo) CreateSocialEncounter(socialEncounter *model.So
 
     return nil
 }
-
-func (repo *SocialEncounterRepo) GetAll() ([]model.SocialEncounter, error) {
-    encounters := []model.SocialEncounter{}
-    dbResult := repo.DatabaseConnection.Find(&tours)
-    if dbResult.Error != nil {
-        return encounters, dbResult.Error
-    }
-    return encounters, nil
-}
