@@ -20,6 +20,23 @@ func (repo *SocialEncounterRepo) Get (id string) (model.SocialEncounter, error) 
 	return socialEncounter, nil
 }
 
+func (repo *SocialEncounterRepo) UpdateSocialEncounter(encounter *model.SocialEncounter) error {
+	dbResult := repo.DatabaseConnection.Save(encounter)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
+}
+
+func (repo *SocialEncounterRepo) GetAll() ([]model.SocialEncounter, error) {
+	encounters := []model.SocialEncounter{}
+	dbResult := repo.DatabaseConnection.Preload("Participants").Find(&encounters)
+	if dbResult != nil {
+		return encounters, dbResult.Error
+	}
+	return encounters, nil
+}
+
 func (repo *SocialEncounterRepo) CreateSocialEncounter(socialEncounter *model.SocialEncounter) error {
     tx := repo.DatabaseConnection.Begin()
 

@@ -40,6 +40,8 @@ func startServer(handler *handler.HiddenEncounterHandler, socialEncounterHandler
 
 	//SocialEncounter
 	router.HandleFunc("/socialEncounter/create", socialEncounterHandler.Create).Methods("POST")
+	router.HandleFunc("/socialEncounter/activate/{id}", socialEncounterHandler.Activate).Methods("PUT")
+	router.HandleFunc("/socialEncounter", socialEncounterHandler.GetAll).Methods("GET")
 
 	println("Server starting")
 	log.Fatal((http.ListenAndServe(":8081", router)))
