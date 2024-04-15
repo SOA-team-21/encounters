@@ -13,9 +13,8 @@ import (
 	"gorm.io/gorm"
 )
 
-
 func initDB() *gorm.DB {
-	dsn := "user=postgres password=super dbname=soa_encounters host=localhost port=5432 sslmode=disable search_path=encounters"
+	dsn := "user=postgres password=super dbname=soa_encounters host=enc-database port=5432 sslmode=disable"
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -44,7 +43,7 @@ func startServer(handler *handler.HiddenEncounterHandler, socialEncounterHandler
 	router.HandleFunc("/socialEncounter", socialEncounterHandler.GetAll).Methods("GET")
 
 	println("Server starting")
-	log.Fatal((http.ListenAndServe(":8081", router)))
+	log.Fatal((http.ListenAndServe(":8082", router)))
 }
 
 func main() {
