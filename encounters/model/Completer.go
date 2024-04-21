@@ -1,26 +1,29 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
+	"io"
 	"time"
 
-	"github.com/google/uuid"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Completer struct {
-	Id 				int64	`json:"id"`
-	Username        string
-	CompletionDate  time.Time
-	EncounterId		int64	`json:"encounterId"`
+	Id 				primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Username        string				`bson:"username" json:"username"`
+	CompletionDate  time.Time			`bson:"completionDate" json:"completionDate"`
+	EncounterId		int64				`bson:"encounterId" json:"encounterId"`
 }
 
-func (completer *Completer) BeforeCreate(scope *gorm.DB) error {
-	if err := completer.Validate(); err != nil {
-		return err
-	}
-	completer.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
-	return nil
+func (c *Completer) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(c)
+}
+
+func (c *Completer) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(c)
 }
 
 func (completer *Completer) Validate() error {

@@ -1,7 +1,10 @@
 package model
 
 import (
-	"gorm.io/gorm"
+	"encoding/json"
+	"io"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type EncounterStatus int
@@ -21,18 +24,24 @@ const (
 )
 
 type Encounter struct {
-	Id           int64	`json:"id" gorm:"primaryKey"`
-	Name         string
-	Description  string
-	Location     Location	`gorm:"type:jsonb;"`
-	Experience   int64
-	Status       EncounterStatus
-	Type         EncounterType
-	Radius       int64
-	Participants []Participant
-	Completers   []Completer
+	Id           primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name         string				`bson:"name" json:"name"`
+	Description  string				`bson:"description, omitempty" json:"description"`
+	Location     Location			`bson:"location,omitempty" json:"location"`
+	Experience   int64				`bson:"experience,omitempty" json:"experience"`
+	Status       EncounterStatus	`bson:"status,omitempty" json:"status"`
+	Type         EncounterType		`bson:"type,omitempty" json:"type"`
+	Radius       int64				`bson:"radius,omitempty" json:"radius"`
+	Participants []Participant		`bson:"participants,omitempty" json:"participants"`
+	Completers   []Completer		`bson:"completers,omitempty" json:"completers"`
 }
 
-func (encounter *Encounter) BeforeCreate(scope *gorm.DB) error {
-	return nil
+func (enc *Encounter) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(enc)
+}
+
+func (enc *Encounter) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(enc)
 }

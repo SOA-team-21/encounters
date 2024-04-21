@@ -1,23 +1,29 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
+	"io"
 
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Participant struct {
-	Id 		  int64	`json:"id"`
-	Username  string
-	EncounterId		int64	`json:"encounterId"`
+	Id 		  primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Username  string			`bson:"username" json:"username"`
+	EncounterId		int64		`bson:"encounterId" json:"encounterId"`
 }
 
-func (participant *Participant) BeforeCreate(scope *gorm.DB) error {
-	if err := participant.Validate(); err != nil {
-		return err
-	}
-	return nil
+func (p *Participant) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p)
 }
+
+func (p *Participant) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(p)
+}
+
 
 func (participant *Participant) Validate() error {
 	if participant.Username == "" {
