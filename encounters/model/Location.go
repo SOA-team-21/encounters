@@ -4,27 +4,28 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"io"
 	"math"
-	"time"
 
-	"github.com/google/uuid"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const EarthRadiusInKm = 6371.0
 
 type Location struct {
-	Id 		   	int64	`json:"id"`
-	Latitude   	float64	`json:"latitude"`
-	Longitude  	float64	`json:"longitude"`
+	Id 		   	primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Latitude   	float64	`bson:"latitude" json:"latitude"`
+	Longitude  	float64	`bson:"longitude" json:"longitude"`
 }
 
-func (location *Location) BeforeCreate(scope *gorm.DB) error {
-	if err := location.Validate(); err != nil {
-		return err
-	}
-	location.Id = int64(uuid.New().ID()) + time.Now().UnixNano()/int64(time.Microsecond)
-	return nil
+func (l *Location) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(l)
+}
+
+func (l *Location) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(l)
 }
 
 func (location *Location) Validate() error {
