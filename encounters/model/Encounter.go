@@ -3,8 +3,6 @@ package model
 import (
 	"encoding/json"
 	"io"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type EncounterStatus int
@@ -24,7 +22,7 @@ const (
 )
 
 type Encounter struct {
-	Id           primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Id           int64 				`bson:"_id,omitempty" json:"id"`
 	Name         string				`bson:"name" json:"name"`
 	Description  string				`bson:"description, omitempty" json:"description"`
 	Location     Location			`bson:"location,omitempty" json:"location"`
