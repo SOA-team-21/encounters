@@ -125,8 +125,8 @@ func (pr *EncounterRepo) UpdateHiddenEncounter(id string, hiddenEncounter *model
 	objID, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.M{"_id": objID}
 	update := bson.M{"$set": bson.M{
-		"name":    hiddenEncounter.Name,
-		"description" : hiddenEncounter.Description,
+		"name":        hiddenEncounter.Name,
+		"description": hiddenEncounter.Description,
 	}}
 	result, err := hiddenEncountersCollection.UpdateOne(ctx, filter, update)
 	pr.logger.Printf("Documents matched: %v\n", result.MatchedCount)
@@ -139,7 +139,7 @@ func (pr *EncounterRepo) UpdateHiddenEncounter(id string, hiddenEncounter *model
 	return nil
 }
 
-func (pr *EncounterRepo) ActivateHiddenEncounter (id string, participantLocation model.ParticipantLocation) ( error) {
+func (pr *EncounterRepo) ActivateHiddenEncounter(id string, participantLocation model.ParticipantLocation) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	hiddenEncountersCollection := pr.getHiddenEncounterCollection()
@@ -151,7 +151,7 @@ func (pr *EncounterRepo) ActivateHiddenEncounter (id string, participantLocation
 		newParticipant := model.Participant{
 			Username: participantLocation.Username,
 		}
-		
+
 		objID, _ := primitive.ObjectIDFromHex(id)
 		filter := bson.D{{Key: "_id", Value: objID}}
 		update := bson.M{"$push": bson.M{
@@ -161,19 +161,18 @@ func (pr *EncounterRepo) ActivateHiddenEncounter (id string, participantLocation
 		result, err := hiddenEncountersCollection.UpdateOne(ctx, filter, update)
 		pr.logger.Printf("Documents matched: %v\n", result.MatchedCount)
 		pr.logger.Printf("Documents updated: %v\n", result.ModifiedCount)
-		
 
 		if err != nil {
 			pr.logger.Println(err)
 			return err
 		}
 	} else {
-		return fmt.Errorf("activation failed") 
+		return fmt.Errorf("activation failed")
 	}
 	return nil
 }
 
-func (pr *EncounterRepo) SolveHiddenEncounter (id string, participantLocation model.ParticipantLocation) ( error) {
+func (pr *EncounterRepo) SolveHiddenEncounter(id string, participantLocation model.ParticipantLocation) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	hiddenEncountersCollection := pr.getHiddenEncounterCollection()
@@ -183,11 +182,11 @@ func (pr *EncounterRepo) SolveHiddenEncounter (id string, participantLocation mo
 
 	if result {
 		now := time.Now()
-		completer := model.Completer {
-			Username: participantLocation.Username,
+		completer := model.Completer{
+			Username:       participantLocation.Username,
 			CompletionDate: now,
 		}
-		
+
 		objID, _ := primitive.ObjectIDFromHex(id)
 
 		filter := bson.D{{Key: "_id", Value: objID}}
@@ -203,7 +202,6 @@ func (pr *EncounterRepo) SolveHiddenEncounter (id string, participantLocation mo
 		pr.logger.Printf("Documents matched: %v\n", resultCompleters.MatchedCount)
 		pr.logger.Printf("Documents updated: %v\n", resultCompleters.ModifiedCount)
 
-
 		updateParticipants := bson.M{"$pull": bson.M{
 			"encounter.participants": bson.M{"username": completer.Username},
 		}}
@@ -214,9 +212,9 @@ func (pr *EncounterRepo) SolveHiddenEncounter (id string, participantLocation mo
 		}
 		pr.logger.Printf("Documents matched: %v\n", resultParticipants.MatchedCount)
 		pr.logger.Printf("Documents updated: %v\n", resultParticipants.ModifiedCount)
-		
+
 	} else {
-		return fmt.Errorf("activation failed") 
+		return fmt.Errorf("activation failed")
 	}
 	return nil
 }
@@ -229,14 +227,14 @@ func (hr *EncounterRepo) getHiddenEncounterCollection() *mongo.Collection {
 
 //socialEncounter
 
-func (pr *EncounterRepo) GetAllSocialEncounters() (model.SocialEncounters, error) {
+func (pr *EncounterRepo) GetAllSocialEncounters() ([]model.SocialEncounter, error) {
 	// Initialise context (after 5 seconds timeout, abort operation)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	socialEncountersCollection := pr.getSocialEncounterCollection()
 
-	var socialEncounters model.SocialEncounters
+	var socialEncounters []model.SocialEncounter
 	encountersCursor, err := socialEncountersCollection.Find(ctx, bson.M{})
 	if err != nil {
 		pr.logger.Println(err)
@@ -265,7 +263,7 @@ func (pr *EncounterRepo) GetSocialEncounterById(id string) (*model.SocialEncount
 	return &socialEncounter, nil
 }
 
-func (pr *EncounterRepo) InsertSocialEncounter(socialEncounter *model.SocialEncounter) error {
+func (pr *EncounterRepo) InsertSocialEncounter(socialEncounter *model.SocialEncounter) (*model.SocialEncounter, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	socialEncountersCollection := pr.getSocialEncounterCollection()
@@ -273,13 +271,13 @@ func (pr *EncounterRepo) InsertSocialEncounter(socialEncounter *model.SocialEnco
 	result, err := socialEncountersCollection.InsertOne(ctx, &socialEncounter)
 	if err != nil {
 		pr.logger.Println(err)
-		return err
+		return nil, err
 	}
 	pr.logger.Printf("Documents ID: %v\n", result.InsertedID)
-	return nil
+	return socialEncounter, nil
 }
 
-func (pr *EncounterRepo) UpdateSocialEncounter(id string, socialEncounter *model.SocialEncounter) error {
+func (pr *EncounterRepo) UpdateSocialEncounter(id string, socialEncounter *model.SocialEncounter) (*model.SocialEncounter, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	socialEncountersCollection := pr.getSocialEncounterCollection()
@@ -287,8 +285,8 @@ func (pr *EncounterRepo) UpdateSocialEncounter(id string, socialEncounter *model
 	objID, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.M{"_id": objID}
 	update := bson.M{"$set": bson.M{
-		"name":    socialEncounter.Name,
-		"description" : socialEncounter.Description,
+		"name":        socialEncounter.Name,
+		"description": socialEncounter.Description,
 	}}
 	result, err := socialEncountersCollection.UpdateOne(ctx, filter, update)
 	pr.logger.Printf("Documents matched: %v\n", result.MatchedCount)
@@ -296,12 +294,12 @@ func (pr *EncounterRepo) UpdateSocialEncounter(id string, socialEncounter *model
 
 	if err != nil {
 		pr.logger.Println(err)
-		return err
+		return nil, err
 	}
-	return nil
+	return socialEncounter, nil
 }
 
-func (pr *EncounterRepo) ActivateSocialEncounter (id string, participantLocation model.ParticipantLocation) ( error) {
+func (pr *EncounterRepo) ActivateSocialEncounter(id string, participantLocation model.ParticipantLocation) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	socialEncountersCollection := pr.getSocialEncounterCollection()
@@ -313,7 +311,7 @@ func (pr *EncounterRepo) ActivateSocialEncounter (id string, participantLocation
 		newParticipant := model.Participant{
 			Username: participantLocation.Username,
 		}
-		
+
 		objID, _ := primitive.ObjectIDFromHex(id)
 		filter := bson.D{{Key: "_id", Value: objID}}
 		update := bson.M{"$push": bson.M{
@@ -323,14 +321,13 @@ func (pr *EncounterRepo) ActivateSocialEncounter (id string, participantLocation
 		result, err := socialEncountersCollection.UpdateOne(ctx, filter, update)
 		pr.logger.Printf("Documents matched: %v\n", result.MatchedCount)
 		pr.logger.Printf("Documents updated: %v\n", result.ModifiedCount)
-		
 
 		if err != nil {
 			pr.logger.Println(err)
 			return err
 		}
 	} else {
-		return fmt.Errorf("activation failed") 
+		return fmt.Errorf("activation failed")
 	}
 	return nil
 }

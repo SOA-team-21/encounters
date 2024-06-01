@@ -6,16 +6,14 @@ import (
 	"errors"
 	"io"
 	"math"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const EarthRadiusInKm = 6371.0
 
 type Location struct {
-	Id 		   	primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Latitude   	float64	`bson:"latitude" json:"latitude"`
-	Longitude  	float64	`bson:"longitude" json:"longitude"`
+	Id        int64   `bson:"_id,omitempty" json:"id"`
+	Latitude  float64 `bson:"latitude" json:"latitude"`
+	Longitude float64 `bson:"longitude" json:"longitude"`
 }
 
 func (l *Location) ToJSON(w io.Writer) error {

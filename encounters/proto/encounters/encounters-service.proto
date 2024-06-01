@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package encounters;
+
+option go_package = "encounters/proto/encounters";
+import "google/api/timestamp.proto";
+
+service EncountersService{
+    rpc GetAllSocialEncounters(EmptyRequest) returns(SocialEncountersResponse){}
+    rpc PostSocialEncounter(SocialEncounterResponse) returns(SocialEncounterResponse){}
+    rpc ActivateSocialEncounter(ActivateSocialEncounterRequest) returns(EmptyResponse){}
+}
+
+message EmptyRequest {}
+
+message EmptyResponse {}
+
+message SocialEncountersResponse{
+    repeated SocialEncounterResponse SocialEncounters = 1;
+}
+
+message SocialEncounterResponse {
+	int64 Id = 1;
+	string Name = 2;
+	string Description = 3;
+	Location Location = 4;
+	int64 Experience = 5;
+	EncounterStatus Status = 6;
+	EncounterType Type = 7;
+	int64 Radius = 8;
+	repeated Participant Participants = 9;
+	repeated Completer Completers = 10;
+	int64 RequiredParticipants = 11;
+	repeated Participant CurrentlyInRange = 12;
+}
+
+message Location {
+	int64 Id = 1;
+	float Latitude = 2;
+	float Longitude = 3;
+}
+
+message Participant {
+	int64 Id = 1;
+	string Username = 2;
+	int64 EncounterId = 3;
+}
+
+message Completer {
+	int64 Id = 1;
+	string Username = 2;
+	google.protobuf.Timestamp CompletionDate = 3;
+	int64 EncounterId = 4;
+}
+
+enum EncounterStatus {
+    Draft = 0;
+    Active = 1;
+    Archived = 2;
+}
+
+enum EncounterType {
+    Social = 0;
+    Hidden = 1;
+    Misc = 2;
+}
+
+message ActivateSocialEncounterRequest {
+    string Id = 1;
+    ParticipantLocation ParticipantLocation = 2;
+}
+
+message ParticipantLocation {
+    string Username = 1;
+    float Latitude = 2;
+    float Longitude = 3;
+}
+
+message SocialEncounterIdRequest{
+    string Id = 1;
+}

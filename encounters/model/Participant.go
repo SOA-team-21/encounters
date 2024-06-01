@@ -4,14 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Participant struct {
-	Id 		  primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Username  string			`bson:"username" json:"username"`
-	EncounterId		int64		`bson:"encounterId" json:"encounterId"`
+	Id          int64  `bson:"_id,omitempty" json:"id"`
+	Username    string `bson:"username" json:"username"`
+	EncounterId int64  `bson:"encounterId" json:"encounterId"`
 }
 
 func (p *Participant) ToJSON(w io.Writer) error {
@@ -23,7 +21,6 @@ func (p *Participant) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(p)
 }
-
 
 func (participant *Participant) Validate() error {
 	if participant.Username == "" {
