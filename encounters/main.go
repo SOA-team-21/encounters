@@ -22,7 +22,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
-		port = "8081"
+		port = "8082"
 	}
 
 	// Initialize context
@@ -45,8 +45,8 @@ func main() {
 	encounterRepo, err := repo.New(ctx, logger)
 	encountersHandler := &handler.EncounterHandler{Repo: encounterRepo}
 
-	lis, err := net.Listen("tcp", ":87")
-	fmt.Println("Running gRPC on port 88")
+	lis, err := net.Listen("tcp", ":8082")
+	fmt.Println("Running gRPC on port 8082")
 	if err != nil {
 		log.Fatalln(err)
 	}
