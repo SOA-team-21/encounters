@@ -22,6 +22,11 @@ const (
 	EncountersService_GetAllSocialEncounters_FullMethodName  = "/encounters.EncountersService/GetAllSocialEncounters"
 	EncountersService_PostSocialEncounter_FullMethodName     = "/encounters.EncountersService/PostSocialEncounter"
 	EncountersService_ActivateSocialEncounter_FullMethodName = "/encounters.EncountersService/ActivateSocialEncounter"
+	EncountersService_GetAllHiddenEncounters_FullMethodName  = "/encounters.EncountersService/GetAllHiddenEncounters"
+	EncountersService_GetHiddenEncounterById_FullMethodName  = "/encounters.EncountersService/GetHiddenEncounterById"
+	EncountersService_PostHiddenEncounter_FullMethodName     = "/encounters.EncountersService/PostHiddenEncounter"
+	EncountersService_ActivateHiddenEncounter_FullMethodName = "/encounters.EncountersService/ActivateHiddenEncounter"
+	EncountersService_SolveHiddenEncounter_FullMethodName    = "/encounters.EncountersService/SolveHiddenEncounter"
 )
 
 // EncountersServiceClient is the client API for EncountersService service.
@@ -31,6 +36,12 @@ type EncountersServiceClient interface {
 	GetAllSocialEncounters(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*SocialEncountersResponse, error)
 	PostSocialEncounter(ctx context.Context, in *SocialEncounterResponse, opts ...grpc.CallOption) (*SocialEncounterResponse, error)
 	ActivateSocialEncounter(ctx context.Context, in *ActivateSocialEncounterRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	// hiddenEncounter
+	GetAllHiddenEncounters(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*HiddenEncountersResponse, error)
+	GetHiddenEncounterById(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*HiddenEncounterResponse, error)
+	PostHiddenEncounter(ctx context.Context, in *HiddenEncounterResponse, opts ...grpc.CallOption) (*HiddenEncounterResponse, error)
+	ActivateHiddenEncounter(ctx context.Context, in *ActivateHiddenEncounterRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	SolveHiddenEncounter(ctx context.Context, in *ActivateHiddenEncounterRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type encountersServiceClient struct {
@@ -68,6 +79,51 @@ func (c *encountersServiceClient) ActivateSocialEncounter(ctx context.Context, i
 	return out, nil
 }
 
+func (c *encountersServiceClient) GetAllHiddenEncounters(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*HiddenEncountersResponse, error) {
+	out := new(HiddenEncountersResponse)
+	err := c.cc.Invoke(ctx, EncountersService_GetAllHiddenEncounters_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *encountersServiceClient) GetHiddenEncounterById(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*HiddenEncounterResponse, error) {
+	out := new(HiddenEncounterResponse)
+	err := c.cc.Invoke(ctx, EncountersService_GetHiddenEncounterById_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *encountersServiceClient) PostHiddenEncounter(ctx context.Context, in *HiddenEncounterResponse, opts ...grpc.CallOption) (*HiddenEncounterResponse, error) {
+	out := new(HiddenEncounterResponse)
+	err := c.cc.Invoke(ctx, EncountersService_PostHiddenEncounter_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *encountersServiceClient) ActivateHiddenEncounter(ctx context.Context, in *ActivateHiddenEncounterRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, EncountersService_ActivateHiddenEncounter_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *encountersServiceClient) SolveHiddenEncounter(ctx context.Context, in *ActivateHiddenEncounterRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, EncountersService_SolveHiddenEncounter_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EncountersServiceServer is the server API for EncountersService service.
 // All implementations must embed UnimplementedEncountersServiceServer
 // for forward compatibility
@@ -75,6 +131,12 @@ type EncountersServiceServer interface {
 	GetAllSocialEncounters(context.Context, *EmptyRequest) (*SocialEncountersResponse, error)
 	PostSocialEncounter(context.Context, *SocialEncounterResponse) (*SocialEncounterResponse, error)
 	ActivateSocialEncounter(context.Context, *ActivateSocialEncounterRequest) (*EmptyResponse, error)
+	// hiddenEncounter
+	GetAllHiddenEncounters(context.Context, *EmptyRequest) (*HiddenEncountersResponse, error)
+	GetHiddenEncounterById(context.Context, *UserIdRequest) (*HiddenEncounterResponse, error)
+	PostHiddenEncounter(context.Context, *HiddenEncounterResponse) (*HiddenEncounterResponse, error)
+	ActivateHiddenEncounter(context.Context, *ActivateHiddenEncounterRequest) (*EmptyResponse, error)
+	SolveHiddenEncounter(context.Context, *ActivateHiddenEncounterRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedEncountersServiceServer()
 }
 
@@ -90,6 +152,21 @@ func (UnimplementedEncountersServiceServer) PostSocialEncounter(context.Context,
 }
 func (UnimplementedEncountersServiceServer) ActivateSocialEncounter(context.Context, *ActivateSocialEncounterRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ActivateSocialEncounter not implemented")
+}
+func (UnimplementedEncountersServiceServer) GetAllHiddenEncounters(context.Context, *EmptyRequest) (*HiddenEncountersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllHiddenEncounters not implemented")
+}
+func (UnimplementedEncountersServiceServer) GetHiddenEncounterById(context.Context, *UserIdRequest) (*HiddenEncounterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHiddenEncounterById not implemented")
+}
+func (UnimplementedEncountersServiceServer) PostHiddenEncounter(context.Context, *HiddenEncounterResponse) (*HiddenEncounterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostHiddenEncounter not implemented")
+}
+func (UnimplementedEncountersServiceServer) ActivateHiddenEncounter(context.Context, *ActivateHiddenEncounterRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ActivateHiddenEncounter not implemented")
+}
+func (UnimplementedEncountersServiceServer) SolveHiddenEncounter(context.Context, *ActivateHiddenEncounterRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SolveHiddenEncounter not implemented")
 }
 func (UnimplementedEncountersServiceServer) mustEmbedUnimplementedEncountersServiceServer() {}
 
@@ -158,6 +235,96 @@ func _EncountersService_ActivateSocialEncounter_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EncountersService_GetAllHiddenEncounters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EncountersServiceServer).GetAllHiddenEncounters(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EncountersService_GetAllHiddenEncounters_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EncountersServiceServer).GetAllHiddenEncounters(ctx, req.(*EmptyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EncountersService_GetHiddenEncounterById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EncountersServiceServer).GetHiddenEncounterById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EncountersService_GetHiddenEncounterById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EncountersServiceServer).GetHiddenEncounterById(ctx, req.(*UserIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EncountersService_PostHiddenEncounter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HiddenEncounterResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EncountersServiceServer).PostHiddenEncounter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EncountersService_PostHiddenEncounter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EncountersServiceServer).PostHiddenEncounter(ctx, req.(*HiddenEncounterResponse))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EncountersService_ActivateHiddenEncounter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActivateHiddenEncounterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EncountersServiceServer).ActivateHiddenEncounter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EncountersService_ActivateHiddenEncounter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EncountersServiceServer).ActivateHiddenEncounter(ctx, req.(*ActivateHiddenEncounterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EncountersService_SolveHiddenEncounter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActivateHiddenEncounterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EncountersServiceServer).SolveHiddenEncounter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EncountersService_SolveHiddenEncounter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EncountersServiceServer).SolveHiddenEncounter(ctx, req.(*ActivateHiddenEncounterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EncountersService_ServiceDesc is the grpc.ServiceDesc for EncountersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +343,26 @@ var EncountersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ActivateSocialEncounter",
 			Handler:    _EncountersService_ActivateSocialEncounter_Handler,
+		},
+		{
+			MethodName: "GetAllHiddenEncounters",
+			Handler:    _EncountersService_GetAllHiddenEncounters_Handler,
+		},
+		{
+			MethodName: "GetHiddenEncounterById",
+			Handler:    _EncountersService_GetHiddenEncounterById_Handler,
+		},
+		{
+			MethodName: "PostHiddenEncounter",
+			Handler:    _EncountersService_PostHiddenEncounter_Handler,
+		},
+		{
+			MethodName: "ActivateHiddenEncounter",
+			Handler:    _EncountersService_ActivateHiddenEncounter_Handler,
+		},
+		{
+			MethodName: "SolveHiddenEncounter",
+			Handler:    _EncountersService_SolveHiddenEncounter_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -67,14 +67,14 @@ func (pr *EncounterRepo) Ping() {
 
 //hiddenEncounter
 
-func (pr *EncounterRepo) GetAllHiddenEncounters() (model.HiddenEncounters, error) {
+func (pr *EncounterRepo) GetAllHiddenEncounters() ([]model.HiddenEncounter, error) {
 	// Initialise context (after 5 seconds timeout, abort operation)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	hiddenEncountersCollection := pr.getHiddenEncounterCollection()
 
-	var hiddenEncounters model.HiddenEncounters
+	var hiddenEncounters []model.HiddenEncounter
 	encountersCursor, err := hiddenEncountersCollection.Find(ctx, bson.M{})
 	if err != nil {
 		pr.logger.Println(err)
@@ -103,7 +103,7 @@ func (pr *EncounterRepo) GetHiddenEncounterById(id string) (*model.HiddenEncount
 	return &hiddenEncounter, nil
 }
 
-func (pr *EncounterRepo) InsertHiddenEncounter(hiddenEncounter *model.HiddenEncounter) error {
+func (pr *EncounterRepo) InsertHiddenEncounter(hiddenEncounter *model.HiddenEncounter) (*model.HiddenEncounter, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	hiddenEncountersCollection := pr.getHiddenEncounterCollection()
@@ -111,10 +111,10 @@ func (pr *EncounterRepo) InsertHiddenEncounter(hiddenEncounter *model.HiddenEnco
 	result, err := hiddenEncountersCollection.InsertOne(ctx, &hiddenEncounter)
 	if err != nil {
 		pr.logger.Println(err)
-		return err
+		return nil, err
 	}
 	pr.logger.Printf("Documents ID: %v\n", result.InsertedID)
-	return nil
+	return hiddenEncounter, nil
 }
 
 func (pr *EncounterRepo) UpdateHiddenEncounter(id string, hiddenEncounter *model.HiddenEncounter) error {

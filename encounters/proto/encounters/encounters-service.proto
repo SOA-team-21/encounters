@@ -9,6 +9,13 @@ service EncountersService{
     rpc GetAllSocialEncounters(EmptyRequest) returns(SocialEncountersResponse){}
     rpc PostSocialEncounter(SocialEncounterResponse) returns(SocialEncounterResponse){}
     rpc ActivateSocialEncounter(ActivateSocialEncounterRequest) returns(EmptyResponse){}
+
+	//hiddenEncounter
+	rpc GetAllHiddenEncounters(EmptyRequest) returns(HiddenEncountersResponse){}
+    rpc GetHiddenEncounterById(UserIdRequest) returns(HiddenEncounterResponse){}
+    rpc PostHiddenEncounter(HiddenEncounterResponse) returns(HiddenEncounterResponse){}
+    rpc ActivateHiddenEncounter(ActivateHiddenEncounterRequest) returns(EmptyResponse){}
+    rpc SolveHiddenEncounter(ActivateHiddenEncounterRequest) returns(EmptyResponse){}
 }
 
 message EmptyRequest {}
@@ -32,6 +39,30 @@ message SocialEncounterResponse {
 	repeated Completer Completers = 10;
 	int64 RequiredParticipants = 11;
 	repeated Participant CurrentlyInRange = 12;
+}
+
+message HiddenEncountersResponse{
+    repeated HiddenEncounterResponse HiddenEncounters = 1;
+}
+
+message HiddenEncounterResponse{
+    int64 Id = 1;
+	string Name = 2;
+	string Description = 3;
+	Location Location = 4;
+	int64 Experience = 5;
+	EncounterStatus Status = 6;
+	EncounterType Type = 7;
+	int64 Radius = 8;
+	repeated Participant Participants = 9;
+	repeated Completer Completers = 10;
+	string Image = 11;
+	Location PointLocation = 12;
+}
+
+message ActivateHiddenEncounterRequest {
+    string Id = 1;
+    ParticipantLocation ParticipantLocation = 2;
 }
 
 message Location {
@@ -78,4 +109,8 @@ message ParticipantLocation {
 
 message SocialEncounterIdRequest{
     string Id = 1;
+}
+
+message UserIdRequest{
+    int64 UserId = 1;
 }
