@@ -233,20 +233,17 @@ func RpcToParticipantLocation(rpcParticipantLocation *encounters.ParticipantLoca
 	}
 }
 
-
 //hiddenEncounter
 
-
-func (handler *EncounterHandler) GetAllHiddenEncounters(ctx context.Context, request *encounters.EmptyResponse) (*encounters.HiddenEncountersResponse, error){
-	var fromDb, err = handler.Repo.GetAllHiddenEncounters();
+func (handler *EncounterHandler) GetAllHiddenEncounters(ctx context.Context, request *encounters.EmptyRequest) (*encounters.HiddenEncountersResponse, error) {
+	var fromDb, err = handler.Repo.GetAllHiddenEncounters()
 	if err != nil {
 		return &encounters.HiddenEncountersResponse{}, err
 	}
 	return HiddenEncountersToRpc(fromDb), nil
 }
 
-
-func (handler *EncounterHandler) GetHiddenEncounterById(ctx context.Context, request *encounters.UserIdRequest) (*encounters.HiddenEncounterResponse, error){
+func (handler *EncounterHandler) GetHiddenEncounterById(ctx context.Context, request *encounters.UserIdRequest) (*encounters.HiddenEncounterResponse, error) {
 	userId := fmt.Sprint(request.UserId)
 
 	var fromDb, err = handler.Repo.GetHiddenEncounterById(userId)
@@ -256,88 +253,86 @@ func (handler *EncounterHandler) GetHiddenEncounterById(ctx context.Context, req
 	return HiddenEncounterToRpc(fromDb), nil
 }
 
-func (handler *EncounterHandler) PostHiddenEncounter (ctx context.Context, request *encounters.HiddenEncounterResponse) (*encounters.HiddenEncounterResponse, error){
+func (handler *EncounterHandler) PostHiddenEncounter(ctx context.Context, request *encounters.HiddenEncounterResponse) (*encounters.HiddenEncounterResponse, error) {
 	encounter := RpcToHiddenEncounter(request)
 
 	var fromDb, err = handler.Repo.InsertHiddenEncounter(encounter)
-	if err != nil{
+	if err != nil {
 		return &encounters.HiddenEncounterResponse{}, err
 	}
 	return HiddenEncounterToRpc(fromDb), nil
 }
 
-func (handler *EncounterHandler) ActivateHiddenEncounter (ctx context.Context, request *encounters.ActivateHiddenEncounterRequest) (*encounters.EmptyResponse, error){
+func (handler *EncounterHandler) ActivateHiddenEncounter(ctx context.Context, request *encounters.ActivateHiddenEncounterRequest) (*encounters.EmptyResponse, error) {
 	id := request.Id
 	participantLocation := RpcToParticipantLocation(request.ParticipantLocation)
 
 	err := handler.Repo.ActivateHiddenEncounter(id, *participantLocation)
-	if err != nil{
+	if err != nil {
 		return &encounters.EmptyResponse{}, err
 	}
 	return &encounters.EmptyResponse{}, nil
 }
 
-func (handler *EncounterHandler) SolveHiddenEncounter (ctx context.Context, request *encounters.ActivateHiddenEncounterRequest) (*encounters.EmptyResponse, error){
+func (handler *EncounterHandler) SolveHiddenEncounter(ctx context.Context, request *encounters.ActivateHiddenEncounterRequest) (*encounters.EmptyResponse, error) {
 	id := request.Id
 	participantLocation := RpcToParticipantLocation(request.ParticipantLocation)
 
 	err := handler.Repo.SolveHiddenEncounter(id, *participantLocation)
-	if err != nil{
+	if err != nil {
 		return &encounters.EmptyResponse{}, err
 	}
 	return &encounters.EmptyResponse{}, nil
 }
 
-func HiddenEncounterToRpc(hiddenEncounter *model.HiddenEncounter) *encounters.HiddenEncounterResponse{
+func HiddenEncounterToRpc(hiddenEncounter *model.HiddenEncounter) *encounters.HiddenEncounterResponse {
 	return &encounters.HiddenEncounterResponse{
-		Id : hiddenEncounter.Id,
-		Name :	hiddenEncounter.Name,
-		Description :	hiddenEncounter.Description,
-		Location :	LocationToRpc(hiddenEncounter.Location),
-		Experience :	hiddenEncounter.Experience,
-		Status : encounters.EncounterStatus(hiddenEncounter.Status),
-		Type :	encounters.EncounterType(hiddenEncounter.Type),
-		Radius :	hiddenEncounter.Radius,
-		Participants :	ParticipantsToRpc(hiddenEncounter.Participants),
-		Completers :	CompletersToRpc(hiddenEncounter.Completers),
-		Image :	hiddenEncounter.Image,
-		PointLocation : LocationToRpc(hiddenEncounter.PointLocation),
+		Id:            hiddenEncounter.Id,
+		Name:          hiddenEncounter.Name,
+		Description:   hiddenEncounter.Description,
+		Location:      LocationToRpc(hiddenEncounter.Location),
+		Experience:    hiddenEncounter.Experience,
+		Status:        encounters.EncounterStatus(hiddenEncounter.Status),
+		Type:          encounters.EncounterType(hiddenEncounter.Type),
+		Radius:        hiddenEncounter.Radius,
+		Participants:  ParticipantsToRpc(hiddenEncounter.Participants),
+		Completers:    CompletersToRpc(hiddenEncounter.Completers),
+		Image:         hiddenEncounter.Image,
+		PointLocation: LocationToRpc(hiddenEncounter.PointLocation),
 	}
 }
 
-func HiddenEncountersToRpc(hiddenEncounters []model.HiddenEncounter) *encounters.HiddenEncountersResponse{
-	result:= make([]*encounters.HiddenEncounterResponse, len(hiddenEncounters))
+func HiddenEncountersToRpc(hiddenEncounters []model.HiddenEncounter) *encounters.HiddenEncountersResponse {
+	result := make([]*encounters.HiddenEncounterResponse, len(hiddenEncounters))
 	for i, e := range hiddenEncounters {
 		result[i] = HiddenEncounterToRpc(&e)
 	}
 	return &encounters.HiddenEncountersResponse{HiddenEncounters: result}
 }
 
-
-func RpcToHiddenEncounter(rpcHiddenEncounter *encounters.HiddenEncounterResponse) *model.HiddenEncounter{
+func RpcToHiddenEncounter(rpcHiddenEncounter *encounters.HiddenEncounterResponse) *model.HiddenEncounter {
 	return &model.HiddenEncounter{
 		Encounter: model.Encounter{
-			Id: 			rpcHiddenEncounter.Id,         
-			Name:			rpcHiddenEncounter.Name,         
-			Description : 	rpcHiddenEncounter.Description, 
-			Location : 		*RpcToLocation(rpcHiddenEncounter.Location),    
-			Experience: 	rpcHiddenEncounter.Experience,   
-			Status  : 		model.EncounterStatus(rpcHiddenEncounter.Status),    
-			Type:   		model.EncounterType(rpcHiddenEncounter.Type),      
-			Radius:       	rpcHiddenEncounter.Radius,
-			Participants: 	RpcToParticipants(rpcHiddenEncounter.Participants),
-			Completers:   	RpcToCompleters(rpcHiddenEncounter.Completers),
+			Id:           rpcHiddenEncounter.Id,
+			Name:         rpcHiddenEncounter.Name,
+			Description:  rpcHiddenEncounter.Description,
+			Location:     *RpcToLocation(rpcHiddenEncounter.Location),
+			Experience:   rpcHiddenEncounter.Experience,
+			Status:       model.EncounterStatus(rpcHiddenEncounter.Status),
+			Type:         model.EncounterType(rpcHiddenEncounter.Type),
+			Radius:       rpcHiddenEncounter.Radius,
+			Participants: RpcToParticipants(rpcHiddenEncounter.Participants),
+			Completers:   RpcToCompleters(rpcHiddenEncounter.Completers),
 		},
-		Image:         	rpcHiddenEncounter.Image,
-		PointLocation: 	*RpcToLocation(rpcHiddenEncounter.PointLocation),
+		Image:         rpcHiddenEncounter.Image,
+		PointLocation: *RpcToLocation(rpcHiddenEncounter.PointLocation),
 	}
 }
 
-func RpcToHiddenEncounters(rpcHiddenEncounters *encounters.HiddenEncountersResponse) []model.HiddenEncounter{
+func RpcToHiddenEncounters(rpcHiddenEncounters *encounters.HiddenEncountersResponse) []model.HiddenEncounter {
 	result := make([]model.HiddenEncounter, len(rpcHiddenEncounters.HiddenEncounters))
-	for i, e := range rpcHiddenEncounters.HiddenEncounters{
+	for i, e := range rpcHiddenEncounters.HiddenEncounters {
 		result[i] = *RpcToHiddenEncounter(e)
 	}
 	return result
 }
-
