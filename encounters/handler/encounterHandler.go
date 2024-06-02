@@ -15,33 +15,13 @@ import (
 type KeyProduct struct{}
 
 type EncounterHandler struct {
-	repo *repo.EncounterRepo
+	Repo *repo.EncounterRepo
 	encounters.UnimplementedEncountersServiceServer
 }
 
-//socialEncounter
-/*
-func (p *EncounterHandler) GetAllSocialEncounters(rw http.ResponseWriter, h *http.Request) {
-	socialEncounters, err := p.repo.GetAllSocialEncounters()
-	if err != nil {
-		p.logger.Print("Database exception: ", err)
-	}
-
-	if socialEncounters == nil {
-		return
-	}
-
-	err = socialEncounters.ToJSON(rw)
-	if err != nil {
-		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
-		p.logger.Fatal("Unable to convert to json :", err)
-		return
-	}
-}*/
-
 func (handler *EncounterHandler) GetAllSocialEncounters(ctx context.Context, request *encounters.EmptyRequest) (*encounters.SocialEncountersResponse, error) {
 
-	var fromDb, err = handler.repo.GetAllSocialEncounters()
+	var fromDb, err = handler.Repo.GetAllSocialEncounters()
 	if err != nil {
 		return &encounters.SocialEncountersResponse{}, err
 	}
@@ -52,79 +32,33 @@ func (handler *EncounterHandler) GetSocialEncounterById(ctx context.Context, req
 
 	socialEncounterId := fmt.Sprint(request.Id)
 
-	var fromDb, err = handler.repo.GetSocialEncounterById(socialEncounterId)
+	var fromDb, err = handler.Repo.GetSocialEncounterById(socialEncounterId)
 	if err != nil {
 		return &encounters.SocialEncounterResponse{}, err
 	}
 	return SocialEncounterToRpc(fromDb), nil
 }
-
-/*
-func (p *EncounterHandler) GetSocialEncounterById(rw http.ResponseWriter, h *http.Request) {
-	vars := mux.Vars(h)
-	id := vars["id"]
-
-	socialEncounter, err := p.repo.GetSocialEncounterById(id)
-	if err != nil {
-		p.logger.Print("Database exception: ", err)
-	}
-
-	if socialEncounter == nil {
-		http.Error(rw, "Hidden encounter with given id not found", http.StatusNotFound)
-		p.logger.Printf("Hidden encounter with id: '%s' not found", id)
-		return
-	}
-
-	err = socialEncounter.ToJSON(rw)
-	if err != nil {
-		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
-		p.logger.Fatal("Unable to convert to json :", err)
-		return
-	}
-}*/
 
 func (handler *EncounterHandler) PostSocialEncounter(ctx context.Context, request *encounters.SocialEncounterResponse) (*encounters.SocialEncounterResponse, error) {
 	socialEncounter := RpcToSocialEncounter(request)
 
-	var fromDb, err = handler.repo.InsertSocialEncounter(socialEncounter)
+	var fromDb, err = handler.Repo.InsertSocialEncounter(socialEncounter)
 	if err != nil {
 		return &encounters.SocialEncounterResponse{}, err
 	}
 	return SocialEncounterToRpc(fromDb), nil
 }
-
-/*
-func (p *EncounterHandler) PostSocialEncounter(rw http.ResponseWriter, h *http.Request) {
-	socialEncounter := h.Context().Value(KeyProduct{}).(*model.SocialEncounter)
-	p.repo.InsertSocialEncounter(socialEncounter)
-	rw.WriteHeader(http.StatusCreated)
-}*/
 
 func (handler *EncounterHandler) ActivateSocialEncounter(ctx context.Context, request *encounters.ActivateSocialEncounterRequest) (*encounters.EmptyResponse, error) {
 	id := request.Id
 	participantLocation := RpcToParticipantLocation(request.ParticipantLocation)
 
-	err := handler.repo.ActivateSocialEncounter(id, *participantLocation)
+	err := handler.Repo.ActivateSocialEncounter(id, *participantLocation)
 	if err != nil {
 		return &encounters.EmptyResponse{}, err
 	}
 	return &encounters.EmptyResponse{}, nil
 }
-
-/*
-func (handler *EncounterHandler) ActivateSocialEncounter(writer http.ResponseWriter, req *http.Request) {
-	id := mux.Vars(req)["id"]
-	var ParticipantLocation model.ParticipantLocation
-	err := json.NewDecoder(req.Body).Decode(&ParticipantLocation)
-	if err != nil {
-		println("Error while parsing json")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	handler.repo.ActivateSocialEncounter(id, ParticipantLocation)
-	writer.WriteHeader(http.StatusOK)
-}*/
 
 /*
 func (p *EncounterHandler) MiddlewareContentTypeSet(next http.Handler) http.Handler {
